@@ -1,6 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as statusCodes;
+
+const url = 'ws://localhost:8080';
 
 void main() {
   runApp(App());
@@ -25,7 +29,7 @@ class App extends StatelessWidget {
         // This makes the visual density adapt to the platform that you run
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
-        //visualDensity: VisualDensity.adaptivePlatformDensity,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Sequencium(title: 'Sequencium'),
     );
@@ -138,10 +142,19 @@ class _SequenciumState extends State<Sequencium> {
   String strColorForB = "Red";
   Color colorForB = Colors.red;
 
+  final WebSocketChannel channel = WebSocketChannel.connect(Uri.parse(url));
+
+  @override
+  void dispose() {
+    super.dispose();
+    channel.sink.close(statusCodes.goingAway);
+  }
+
   @override
   void initState() {
     super.initState();
     _initializeState();
+    _initializeSocket();
   }
 
   void _initializeState() {
@@ -149,6 +162,13 @@ class _SequenciumState extends State<Sequencium> {
     _initializePlayers();
     
     setState(() {});
+  }
+
+  void _initializeSocket() {
+    channel.stream.listen((message) {
+      print(message);
+    });
+    channel.sink.add("host");
   }
 
   void _initializeGrid() {
@@ -487,6 +507,8 @@ class _SequenciumState extends State<Sequencium> {
   Widget _createGridWidget(BuildContext context) {
     Widget gridWidget = GridView.count(
       crossAxisCount: size,
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       children: _buildWidgetListFromGrid(context),
     );
 
@@ -499,22 +521,52 @@ class _SequenciumState extends State<Sequencium> {
     );
 
     var padding = (childWidget) => Padding(
-      padding: EdgeInsets.all(20.0),
+      padding: EdgeInsets.all(10.0),
       child: childWidget,
     );
 
-    var center = (childWidget) => Center(
-      child: childWidget,
-    );
-
-    return center(padding(constraints(gridWidget)));
+    return padding(constraints(gridWidget));
   }
 
-  Widget _createRestartButtonWidget(BuildContext context) {
-    return IconButton(
+  Widget _createRestartButton(BuildContext context) {
+    var button = IconButton(
       icon: Icon(Icons.refresh),
       onPressed: () {_showRestartDialog(context);},
+      tooltip: "Restart Game",
     );
+
+    return Flexible(child: button);
+  }
+
+  Widget _createMultiplayerButton(BuildContext context) {
+    var button = RaisedButton(
+      child: Text("Multiplayer"),
+      onPressed: () {},
+    );
+
+    var padding = (childWidget) => Padding(
+      padding: EdgeInsets.symmetric(horizontal: 50.0),
+      child: childWidget,
+    );
+
+    return padding(button);
+  }
+
+  Widget _createButtons(BuildContext context) {
+    var restartButton = _createRestartButton(context);
+
+    var multiplayerButton = _createMultiplayerButton(context);
+
+    var row = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        restartButton,
+        multiplayerButton,
+      ],
+    );
+
+    return row;
   }
 
   @override
@@ -528,7 +580,7 @@ class _SequenciumState extends State<Sequencium> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _createGridWidget(context),
-          _createRestartButtonWidget(context),
+          _createButtons(context),
         ],
       ),
     );
