@@ -1,12 +1,14 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as statusCodes;
 
 import 'dialog.dart' as dialog;
 import 'player.dart';
 import 'game.dart';
+import 'server.dart';
 import 'join_game_dialog.dart' as join_game;
 import 'host_game_dialog.dart' as host_game;
 import 'grid_widget.dart' as grid_widget;
@@ -53,25 +55,21 @@ class Sequencium extends StatefulWidget {
 }
 
 class _SequenciumState extends State<Sequencium> {
-  final WebSocketChannel channel = WebSocketChannel.connect(Uri.parse(url));
-  var stream;
-
-  String hostCode;
-  String joinCode;
-
   Game game = Game();
+
+  Server server = Server();
 
   @override
   void dispose() {
     super.dispose();
-    channel.sink.close(statusCodes.goingAway);
+    server.dispose();
   }
 
   @override
   void initState() {
     super.initState();
     _initializeState();
-    _initializeSocket();
+    _initializeServer();
   }
 
   void _initializeState() {
@@ -80,31 +78,8 @@ class _SequenciumState extends State<Sequencium> {
     setState(() {});
   }
 
-  void _initializeSocket() {
-    hostCode = "Waiting for code...";
-    joinCode = "Waiting for code...";
-
-    stream = channel.stream.asBroadcastStream();
-
-    stream.listen((message) {
-      _onSocketMessage(message);
-    });
-  }
-
-  void _onSocketMessage(String message) {
-    String command = message.substring(0, 4);
-
-    if(command == "host") {
-      String code = message.substring(5);
-
-      setState(() {
-        hostCode = code;
-      });
-    }
-  }
-
-  void _getHostCode() {
-    channel.sink.add("host");
+  void _initializeServer() {
+    server.connectToServer();
   }
 
   String _getGameOverText() {
@@ -203,7 +178,9 @@ class _SequenciumState extends State<Sequencium> {
   Widget _createHostButton(BuildContext context) {
     var hostButton = RaisedButton(
       child: Text("Host Game"),
-       onPressed: () {host_game.showHostGameDialog(context, stream);channel.sink.add("host");},
+       onPressed: () {
+        host_game.showHostGameDialog(context, server);
+      },
     );
     
     return hostButton;
