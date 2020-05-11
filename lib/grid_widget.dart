@@ -47,8 +47,7 @@ List<Widget> _buildWidgetListFromGrid(BuildContext context, Game game, tapCallba
       if(game.isSquareAvailable(row, column)) {
         widgetList[index] = Container(
           child: FlatButton(
-            onPressed: game.isSquareAvailable(row, column) ? 
-              (){tapCallback(row, column, context);} : null,
+            onPressed: (){tapCallback(row, column, context);},
             onLongPress: null,
             child: Center(
               child: Text(
