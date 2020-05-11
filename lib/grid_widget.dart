@@ -41,10 +41,32 @@ List<Widget> _buildWidgetListFromGrid(BuildContext context, Game game, tapCallba
   for(int row = 0; row < game.size; row++) {
     for(int column = 0; column < game.size; column++) {
       int index = row*game.size + column;
-      widgetList[index] = Container(
-        child: InkWell(
-          onTap: game.isSquareAvailable(row, column) ? 
-            (){tapCallback(row, column, context);} : null,
+
+      // If isSquareAvailable make it a FlatButton
+      // otherwise make it a Text
+      if(game.isSquareAvailable(row, column)) {
+        widgetList[index] = Container(
+          child: FlatButton(
+            onPressed: game.isSquareAvailable(row, column) ? 
+              (){tapCallback(row, column, context);} : null,
+            onLongPress: null,
+            child: Center(
+              child: Text(
+                _getGridSquareContent(row, column, game),
+                style: TextStyle(
+                  fontSize: 25.0,
+                  color: _getSquareColor(row, column, game)
+                ),
+              ),
+            ),
+          ),
+          decoration: BoxDecoration(
+            border: _createGridBorder(row, column, game),
+          ),
+        );
+      }
+      else {
+        widgetList[index] = Container(
           child: Center(
             child: Text(
               _getGridSquareContent(row, column, game),
@@ -54,11 +76,11 @@ List<Widget> _buildWidgetListFromGrid(BuildContext context, Game game, tapCallba
               ),
             ),
           ),
-        ),
-        decoration: BoxDecoration(
-          border: _createGridBorder(row, column, game),
-        ),
-      );
+          decoration: BoxDecoration(
+            border: _createGridBorder(row, column, game),
+          ),
+        );
+      }
     }
   }
 
