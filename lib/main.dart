@@ -5,7 +5,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as statusCodes;
 
 import 'dialog.dart' as dialog;
+import 'player.dart';
 import 'game.dart';
+import 'join_game_dialog.dart' as join_game;
+import 'host_game_dialog.dart' as host_game;
 import 'grid_widget.dart' as grid_widget;
 
 const url = 'ws://localhost:8080';
@@ -51,6 +54,7 @@ class Sequencium extends StatefulWidget {
 
 class _SequenciumState extends State<Sequencium> {
   final WebSocketChannel channel = WebSocketChannel.connect(Uri.parse(url));
+  var stream;
 
   String hostCode;
   String joinCode;
@@ -80,7 +84,9 @@ class _SequenciumState extends State<Sequencium> {
     hostCode = "Waiting for code...";
     joinCode = "Waiting for code...";
 
-    channel.stream.listen((message) {
+    stream = channel.stream.asBroadcastStream();
+
+    stream.listen((message) {
       _onSocketMessage(message);
     });
   }
@@ -90,6 +96,7 @@ class _SequenciumState extends State<Sequencium> {
 
     if(command == "host") {
       String code = message.substring(5);
+
       setState(() {
         hostCode = code;
       });
@@ -112,6 +119,38 @@ class _SequenciumState extends State<Sequencium> {
     }
   }
 
+  String _getCurrentPlayerColorString() {
+    switch(game.currentPlayer) {
+      case Player.A: {
+        return grid_widget.strColorForA;
+      }
+      break;
+
+      case Player.B: {
+        return grid_widget.strColorForB;
+      }
+      break;
+    }
+
+    return "";
+  }
+
+  Color _getCurrentPlayerColor() {
+    switch(game.currentPlayer) {
+      case Player.A: {
+        return grid_widget.colorForA;
+      }
+      break;
+
+      case Player.B: {
+        return grid_widget.colorForB;
+      }
+      break;
+    }
+
+    return Colors.black;
+  }
+
   void _onSquareTap(int row, int col, BuildContext context) {
     game.updateGrid(row, col, context);
     
@@ -122,6 +161,20 @@ class _SequenciumState extends State<Sequencium> {
     }
   }
   
+  Widget _createCurrentPlayerText(BuildContext context) {
+    String colorStr = _getCurrentPlayerColorString();
+
+    Widget text = Text(
+      colorStr + "'s Turn",
+      style: TextStyle(
+        fontSize: 25.0,
+        color: _getCurrentPlayerColor(),
+      ),
+    );
+
+    return text;
+  }
+
   Widget _createRestartButton(BuildContext context) {
     var button = IconButton(
       icon: Icon(Icons.refresh),
@@ -131,11 +184,17 @@ class _SequenciumState extends State<Sequencium> {
 
     return Flexible(child: button);
   }
-
+  
   Widget _createJoinButton(BuildContext context) {
+    void submitCallback(code) {
+      print(code);
+    }
+
     var joinButton = RaisedButton(
       child: Text("Join Game"),
-      onPressed: () {dialog.showJoinGameDialog(context);},
+      onPressed: () {
+        join_game.showJoinGameDialog(context, submitCallback);
+      },
     );
 
     return joinButton;
@@ -144,7 +203,7 @@ class _SequenciumState extends State<Sequencium> {
   Widget _createHostButton(BuildContext context) {
     var hostButton = RaisedButton(
       child: Text("Host Game"),
-       onPressed: () {dialog.showHostGameDialog(context);},
+       onPressed: () {host_game.showHostGameDialog(context, stream);channel.sink.add("host");},
     );
     
     return hostButton;
@@ -180,6 +239,7 @@ class _SequenciumState extends State<Sequencium> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
+          _createCurrentPlayerText(context),
           grid_widget.createGridWidget(context, game, _onSquareTap),
           _createButtons(context),
         ],

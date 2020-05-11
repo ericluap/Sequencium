@@ -58,41 +58,5 @@ void showRestartDialog(BuildContext context, restart) {
   );
 }
 
-void showHostGameDialog(BuildContext context) {
-  //_getHostCode();
-  String hostCode = "Fix this in the dialog file";
 
-  AlertDialog alert = AlertDialog(
-    title: Text("Host Game"),
-    content: Text(hostCode),
-  );
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    }
-  );
-}
-
-void showJoinGameDialog(BuildContext context) {
-  Widget input = TextField(
-    decoration: InputDecoration(
-      border: OutlineInputBorder(),
-      hintText: "Enter join code",
-    ),
-  );
-
-  AlertDialog alert = AlertDialog(
-    title: Text("Join Game"),
-    content: input,
-  );
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    }
-  );
-}
 
