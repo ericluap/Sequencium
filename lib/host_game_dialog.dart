@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-void showHostGameDialog(BuildContext context, server) {
+void showHostGameDialog(BuildContext context, server, multiplayerCallback) {
   AlertDialog alert = AlertDialog(
     title: Text("Host Game"),
-    content: HostGameCode(server),
+    content: HostGameCode(server, multiplayerCallback),
   );
 
   showDialog(
@@ -15,9 +15,10 @@ void showHostGameDialog(BuildContext context, server) {
 }
 
 class HostGameCode extends StatefulWidget {
-  HostGameCode(this.server);
+  HostGameCode(this.server, this.multiplayerCallback);
 
   final server;
+  final multiplayerCallback;
 
   @override
   _HostGameCodeState createState() => _HostGameCodeState();
@@ -29,7 +30,13 @@ class _HostGameCodeState extends State<HostGameCode> {
   @override
   void initState() {
     controller.text = "Waiting for code...";
-    widget.server.getJoinCode(_joinCodeCallback);
+
+    if(!widget.server.hasJoinCode) {
+      widget.server.getJoinCode(_joinCodeCallback);
+    }
+    else {
+      controller.text = widget.server.joinCode;
+    }
   }
 
   @override
@@ -42,6 +49,8 @@ class _HostGameCodeState extends State<HostGameCode> {
     setState(() {
       controller.text = joinCode;
     });
+
+    widget.multiplayerCallback();
   }
 
   @override

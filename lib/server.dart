@@ -41,6 +41,10 @@ class Server {
     channel.sink.add("host");
   }
 
+  void joinGame(code) {
+    channel.sink.add("join " + code);
+  }
+
   void _onMessage(String message) {
     String msgType = message.substring(0, 4);
 
@@ -71,8 +75,7 @@ class Server {
 
   void disconnectFromServer() {
     resetState();
-    subscription.cancel();
-    channel.sink.close(statusCodes.goingAway);
+    channel.sink.close(/*statusCodes.goingAway*/);
   }
 
   void dispose() {

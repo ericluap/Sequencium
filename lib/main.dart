@@ -59,6 +59,8 @@ class _SequenciumState extends State<Sequencium> {
 
   Server server = Server();
 
+  bool isMultiplayer = false;
+
   @override
   void dispose() {
     super.dispose();
@@ -162,7 +164,7 @@ class _SequenciumState extends State<Sequencium> {
   
   Widget _createJoinButton(BuildContext context) {
     void submitCallback(code) {
-      print(code);
+      server.joinGame(code);
     }
 
     var joinButton = RaisedButton(
@@ -179,7 +181,7 @@ class _SequenciumState extends State<Sequencium> {
     var hostButton = RaisedButton(
       child: Text("Host Game"),
        onPressed: () {
-        host_game.showHostGameDialog(context, server);
+        host_game.showHostGameDialog(context, server, () {print("multiplayer");isMultiplayer = true;});
       },
     );
     
