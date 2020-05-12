@@ -37,12 +37,20 @@ class Server {
   }
 
   void getJoinCode(callback) {
+    _connectToServerIfNeeded();
     joinCodeCallback = callback;
     channel.sink.add("host");
   }
 
   void joinGame(code) {
+    _connectToServerIfNeeded();
     channel.sink.add("join " + code);
+  }
+
+  void _connectToServerIfNeeded() {
+    if(!isConnected) {
+      connectToServer();
+    }
   }
 
   void _onMessage(String message) {
