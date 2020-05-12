@@ -14,11 +14,14 @@ class Server {
   String joinCode = "";
   Function joinCodeCallback = () {};
 
+  Function getMoveCallback = () {};
+
   void resetState() {
     hasJoinCode = false;
     joinCode = "";
     isConnected = false;
     joinCodeCallback = () {};
+    getMoveCallback = () {};
   }
 
   void connectToServer() {
@@ -47,6 +50,16 @@ class Server {
     channel.sink.add("join " + code);
   }
 
+  void sendMove(int row, int col) {
+    _connectToServerIfNeeded();
+    String msg = "move " + row.toString() + " " + col.toString();
+    channel.sink.add(msg);
+  }
+
+  void onGetMove(callback) {
+    getMoveCallback = callback;
+  }
+
   void _connectToServerIfNeeded() {
     if(!isConnected) {
       connectToServer();
@@ -59,6 +72,11 @@ class Server {
     switch(msgType) {
       case "host": {
         _onHostMessage(message);
+      }
+      break;
+
+      case "move": {
+        _onMoveMessage(message);
       }
       break;
 
@@ -75,10 +93,27 @@ class Server {
     joinCodeCallback(joinCode);
   }
 
+  void _onMoveMessage(message) {
+    String squareStr = message.substring(5);
+    List<String> coordinates = squareStr.split(" ");
+
+    int row = int.parse(coordinates[0]);
+    int col = int.parse(coordinates[1]);
+
+    getMoveCallback(row, col);
+  }
+
   void _listenToStream() {
-    subscription = channel.stream.listen((message) => {
-      _onMessage(message)
-    });
+    subscription = channel.stream.listen(
+      (message) => {
+        _onMessage(message)
+      },
+      // TODO: Do I want to cancel on error? Should I reset all of the state on error?
+      onError: (error) {
+        resetState();
+      },
+      cancelOnError: true,
+    );
   }
 
   void disconnectFromServer() {

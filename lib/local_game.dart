@@ -7,11 +7,14 @@ import 'server.dart';
 import 'join_game_dialog.dart' as join_game;
 import 'host_game_dialog.dart' as host_game;
 import 'grid_widget.dart' as grid_widget;
+import 'winner.dart';
 
 class LocalGame extends StatefulWidget {
-  LocalGame(this.server);
+  LocalGame(this.server, this.startMultiplayer);
 
   final server;
+
+  final Function startMultiplayer;
 
   @override
   _LocalGameState createState() => _LocalGameState();
@@ -27,19 +30,29 @@ class _LocalGameState extends State<LocalGame> {
 
   void _initializeState() {
     game.restart();
-    
-    setState(() {});
   }
 
   String _getGameOverText() {
-    if(game.highestContentForA == game.highestContentForB) {
-      return "It was a tie!";
-    }
-    else if(game.highestContentForA > game.highestContentForB) {
-      return "Player " + grid_widget.strColorForA + " won!";
-    }
-    else {
-      return "Player " + grid_widget.strColorForB + " won!";
+    switch(game.getWinner()) {
+      case Winner.Tie: {
+        return "It was a tie!";
+      }
+      break;
+
+      case Winner.A: {
+        return "Player " + grid_widget.strColorForA + " won!";
+      }
+      break;
+
+      case Winner.B: {
+        return "Player " + grid_widget.strColorForB + " won!";
+      }
+      break;
+
+      case Winner.NotOver: {
+        return "The game is not over yet!";
+      }
+      break;
     }
   }
 
@@ -112,6 +125,7 @@ class _LocalGameState extends State<LocalGame> {
   Widget _createJoinButton(BuildContext context) {
     void submitCallback(code) {
       widget.server.joinGame(code);
+      widget.startMultiplayer();
     }
 
     var joinButton = RaisedButton(
@@ -128,7 +142,9 @@ class _LocalGameState extends State<LocalGame> {
     var hostButton = RaisedButton(
       child: Text("Host Game"),
        onPressed: () {
-        host_game.showHostGameDialog(context, widget.server, () {print("host game callback fix in local game file");});
+        host_game.showHostGameDialog(context, widget.server, () {
+          widget.startMultiplayer();
+        });
       },
     );
     

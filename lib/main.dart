@@ -42,9 +42,22 @@ class _SequenciumState extends State<Sequencium> {
     server.dispose();
   }
 
+  void _startMultiplayer() {
+    setState(() {
+      isMultiplayer = true;
+    });
+  }
+
+  void _stopMultiplayer() {
+    setState(() {
+      isMultiplayer = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget currentGameUI = isMultiplayer ? /*OnlineGame()*/null : LocalGame(server);
+    Widget currentGameUI = isMultiplayer ? 
+      OnlineGame(server, _stopMultiplayer) : LocalGame(server, _startMultiplayer);
 
     return Scaffold(
       appBar: AppBar(

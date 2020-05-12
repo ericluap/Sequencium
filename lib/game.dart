@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'player.dart';
 import 'square.dart';
+import 'winner.dart';
 
 class Game {
   // The number of rows and columns (it's a square)
@@ -138,6 +139,21 @@ class Game {
  
   bool isGameOver() {
     return (availableSquaresForA == 0 && availableSquaresForB == 0);
+  }
+
+  Winner getWinner() {
+    if(!isGameOver()) {
+      return Winner.NotOver;
+    }
+    else if(highestContentForA == highestContentForB) {
+      return Winner.Tie;
+    }
+    else if(highestContentForA > highestContentForB) {
+      return Winner.A;
+    }
+    else {
+      return Winner.B;
+    }
   }
 
   bool isSquareAvailable(row, column) {
