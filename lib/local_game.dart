@@ -89,8 +89,8 @@ class _LocalGameState extends State<LocalGame> {
     return Colors.black;
   }
 
-  void _onSquareTap(int row, int col, BuildContext context) {
-    game.updateGrid(row, col, context);
+  void _onSquareTap(int row, int col) {
+    game.updateGrid(row, col);
     
     setState(() {});
 
@@ -99,7 +99,7 @@ class _LocalGameState extends State<LocalGame> {
     }
   }
   
-  Widget _createCurrentPlayerText(BuildContext context) {
+  Widget _createCurrentPlayerText() {
     String colorStr = _getCurrentPlayerColorString();
 
     Widget text = Text(
@@ -113,7 +113,7 @@ class _LocalGameState extends State<LocalGame> {
     return text;
   }
 
-  Widget _createRestartButton(BuildContext context) {
+  Widget _createRestartButton() {
     var button = IconButton(
       icon: Icon(Icons.refresh),
       onPressed: () {dialog.showRestartDialog(context, _initializeState);},
@@ -123,7 +123,7 @@ class _LocalGameState extends State<LocalGame> {
     return Flexible(child: button);
   }
   
-  Widget _createJoinButton(BuildContext context) {
+  Widget _createJoinButton() {
     void submitCallback(code) {
       widget.server.joinGame(code);
       widget.startMultiplayer();
@@ -139,7 +139,7 @@ class _LocalGameState extends State<LocalGame> {
     return joinButton;
   }
 
-  Widget _createHostButton(BuildContext context) {
+  Widget _createHostButton() {
     var hostButton = RaisedButton(
       child: Text("Host Game"),
        onPressed: () {
@@ -152,11 +152,11 @@ class _LocalGameState extends State<LocalGame> {
     return hostButton;
   }
 
-  Widget _createButtons(BuildContext context) {
-    var restartButton = _createRestartButton(context);
+  Widget _createButtons() {
+    var restartButton = _createRestartButton();
 
-    var joinButton = _createJoinButton(context);
-    var hostButton = _createHostButton(context);
+    var joinButton = _createJoinButton();
+    var hostButton = _createHostButton();
 
     var row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -178,9 +178,9 @@ class _LocalGameState extends State<LocalGame> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        _createCurrentPlayerText(context),
-        grid_widget.createGridWidget(context, game, _onSquareTap),
-        _createButtons(context),
+        _createCurrentPlayerText(),
+        grid_widget.createGridWidget(game, _onSquareTap),
+        _createButtons(),
       ],
     );
   }

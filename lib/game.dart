@@ -56,7 +56,7 @@ class Game {
 
   // Takes what square was clicked on
   // and updates everything accordingly
-  void updateGrid(row, col, BuildContext context) {
+  void updateGrid(row, col) {
     List<Square> allNeighbors = _getNeighborSquares(row, col); 
     var filledNeighbors = allNeighbors.where((n) => !n.isEmpty);
     var sameTeamNeighbors = filledNeighbors.where((n) => n.player == currentPlayer);

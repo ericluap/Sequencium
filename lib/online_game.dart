@@ -30,7 +30,7 @@ class _OnlineGameState extends State<OnlineGame> {
   }
 
   void _getMoveCallback(int row, int col) {
-    game.updateGrid(row, col, context);
+    game.updateGrid(row, col);
 
     setState(() {});
   }
@@ -39,8 +39,8 @@ class _OnlineGameState extends State<OnlineGame> {
     return "game over";
   }
 
-  void _onSquareTap(int row, int col, BuildContext context) {
-    game.updateGrid(row, col, context);
+  void _onSquareTap(int row, int col) {
+    game.updateGrid(row, col);
 
     widget.server.sendMove(row, col);
     
@@ -51,6 +51,9 @@ class _OnlineGameState extends State<OnlineGame> {
     }
   }
 
+  Widget _createButtons() {
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -59,7 +62,7 @@ class _OnlineGameState extends State<OnlineGame> {
       children: <Widget>[
         Text("hi"),
         //_createCurrentPlayerText(context),
-        grid_widget.createGridWidget(context, game, _onSquareTap),
+        grid_widget.createGridWidget(game, _onSquareTap),
         Row(children: [Text("hi")]),
         //_createButtons(context),
       ],

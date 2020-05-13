@@ -11,12 +11,12 @@ String strColorForB = "Red";
 Color colorForB = Colors.red;
 
 
-Widget createGridWidget(BuildContext context, Game game, tapCallback) {
+Widget createGridWidget(Game game, tapCallback) {
   Widget gridWidget = GridView.count(
     crossAxisCount: game.size,
     physics: NeverScrollableScrollPhysics(),
     shrinkWrap: true,
-    children: _buildWidgetListFromGrid(context, game, tapCallback),
+    children: _buildWidgetListFromGrid(game, tapCallback),
   );
 
   var constraints = (childWidget) => ConstrainedBox(
@@ -35,7 +35,7 @@ Widget createGridWidget(BuildContext context, Game game, tapCallback) {
   return padding(constraints(gridWidget));
 }
 
-List<Widget> _buildWidgetListFromGrid(BuildContext context, Game game, tapCallback) {
+List<Widget> _buildWidgetListFromGrid(Game game, tapCallback) {
   List<Widget> widgetList = List(game.size*game.size);
 
   for(int row = 0; row < game.size; row++) {
@@ -47,7 +47,7 @@ List<Widget> _buildWidgetListFromGrid(BuildContext context, Game game, tapCallba
       if(game.isSquareAvailable(row, column)) {
         widgetList[index] = Container(
           child: FlatButton(
-            onPressed: (){tapCallback(row, column, context);},
+            onPressed: (){tapCallback(row, column);},
             onLongPress: null,
             child: Center(
               child: Text(
