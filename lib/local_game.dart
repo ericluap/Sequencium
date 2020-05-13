@@ -30,6 +30,7 @@ class _LocalGameState extends State<LocalGame> {
 
   void _initializeState() {
     game.restart();
+    setState(() {});
   }
 
   String _getGameOverText() {

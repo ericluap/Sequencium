@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'game.dart';
 import 'grid_widget.dart' as grid_widget;
+import 'dialog.dart' as dialog;
 
 class OnlineGame extends StatefulWidget {
   OnlineGame(this.server, this.stopMultiplayer);
@@ -18,15 +19,24 @@ class _OnlineGameState extends State<OnlineGame> {
 
   @override
   void initState() {
-    game.restart();
+    _initializeState();
 
     widget.server.onGetMove(_getMoveCallback);
+  }
+
+  void _initializeState() {
+    game.restart();
+    setState(() {});
   }
 
   void _getMoveCallback(int row, int col) {
     game.updateGrid(row, col, context);
 
     setState(() {});
+  }
+
+  String _getGameOverText() {
+    return "game over";
   }
 
   void _onSquareTap(int row, int col, BuildContext context) {
@@ -36,9 +46,9 @@ class _OnlineGameState extends State<OnlineGame> {
     
     setState(() {});
 
-    //if(game.isGameOver()) {
-    //  dialog.showGameOverDialog(context, _initializeState, _getGameOverText());
-    //}
+    if(game.isGameOver()) {
+      dialog.showGameOverDialog(context, _initializeState, _getGameOverText());
+    }
   }
 
   @override

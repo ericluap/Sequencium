@@ -4,7 +4,7 @@ import 'package:web_socket_channel/status.dart' as statusCodes;
 class Server {
   WebSocketChannel channel;
 
-  final url = 'ws://localhost:8080';
+  final url = 'wss://sequencium-server.herokuapp.com/';
 
   bool isConnected = false;
 
@@ -12,9 +12,9 @@ class Server {
 
   bool hasJoinCode = false;
   String joinCode = "";
-  Function joinCodeCallback = () {};
+  Function joinCodeCallback = (String joinCode) {};
 
-  Function getMoveCallback = () {};
+  Function getMoveCallback = (int row, int col) {};
 
   void resetState() {
     hasJoinCode = false;
@@ -36,6 +36,12 @@ class Server {
       isConnected = true;
 
       _listenToStream();
+    }
+  }
+
+  void removeJoinCodeCallback(callback) {
+    if(joinCodeCallback == callback) {
+      joinCodeCallback = (String joinCode) {};
     }
   }
 
