@@ -62,6 +62,12 @@ class Server {
     channel.sink.add(msg);
   }
 
+  void removeGetMoveCallback(callback) {
+    if(getMoveCallback == callback) {
+      getMoveCallback = (int row, int col) {};
+    }
+  }
+
   void onGetMove(callback) {
     getMoveCallback = callback;
   }

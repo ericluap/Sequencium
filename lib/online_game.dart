@@ -29,6 +29,12 @@ class _OnlineGameState extends State<OnlineGame> {
     setState(() {});
   }
 
+  @override
+  void dispose() {
+    widget.server.removeGetMoveCallback(_getMoveCallback);
+    super.dispose();
+  }
+
   void _getMoveCallback(int row, int col) {
     game.updateGrid(row, col);
 
@@ -51,7 +57,25 @@ class _OnlineGameState extends State<OnlineGame> {
     }
   }
 
+  void _disconnect() {
+    widget.stopMultiplayer();
+  }
+
   Widget _createButtons() {
+    Widget disconnect = RaisedButton(
+      child: Text("Disconnect"),
+      onPressed: () {
+        dialog.showDisconnectDialog(context, _disconnect);
+      },
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        disconnect,
+      ]
+    );
   }
 
   @override
@@ -63,8 +87,7 @@ class _OnlineGameState extends State<OnlineGame> {
         Text("hi"),
         //_createCurrentPlayerText(context),
         grid_widget.createGridWidget(game, _onSquareTap),
-        Row(children: [Text("hi")]),
-        //_createButtons(context),
+        _createButtons(),
       ],
     );
   }
