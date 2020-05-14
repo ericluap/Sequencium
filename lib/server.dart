@@ -4,7 +4,8 @@ import 'package:web_socket_channel/status.dart' as statusCodes;
 class Server {
   WebSocketChannel channel;
 
-  final url = 'wss://sequencium-server.herokuapp.com/';
+  //final url = 'wss://sequencium-server.herokuapp.com/';
+  final url = 'ws://127.0.0.1:8080';
 
   bool isConnected = false;
 
@@ -12,16 +13,21 @@ class Server {
 
   bool hasJoinCode = false;
   String joinCode = "";
-  Function joinCodeCallback = (String joinCode) {};
 
+  Function joinCodeCallback = (String joinCode) {};
   Function getMoveCallback = (int row, int col) {};
+  Function opponentDisconnectCallback = () {};
+  Function opponentJoinCallback = (String color) {};
 
   void resetState() {
     hasJoinCode = false;
     joinCode = "";
     isConnected = false;
-    joinCodeCallback = () {};
-    getMoveCallback = () {};
+
+    joinCodeCallback = (String joinCode) {};
+    getMoveCallback = (int row, int col) {};
+    opponentDisconnectCallback = () {};
+    opponentJoinCallback = (String color) {};
   }
 
   void connectToServer() {
@@ -39,11 +45,6 @@ class Server {
     }
   }
 
-  void removeJoinCodeCallback(callback) {
-    if(joinCodeCallback == callback) {
-      joinCodeCallback = (String joinCode) {};
-    }
-  }
 
   void getJoinCode(callback) {
     _connectToServerIfNeeded();
@@ -62,9 +63,35 @@ class Server {
     channel.sink.add(msg);
   }
 
+  void onOpponentDisconnect(callback) {
+    opponentDisconnectCallback = callback;
+  }
+
+  void onOpponentJoin(callback) {
+    opponentJoinCallback = callback;
+  }
+
+  void removeJoinCodeCallback(callback) {
+    if(joinCodeCallback == callback) {
+      joinCodeCallback = (String joinCode) {};
+    }
+  }
+
   void removeGetMoveCallback(callback) {
     if(getMoveCallback == callback) {
       getMoveCallback = (int row, int col) {};
+    }
+  }
+
+  void removeOpponentDisconnectCallback(callback) {
+    if(opponentDisconnectCallback == callback) {
+      opponentDisconnectCallback = () {};
+    }
+  }
+
+  void removeOpponentJoinCallback(callback) {
+    if(opponentJoinCallback == callback) {
+      opponentJoinCallback = (String color) {};
     }
   }
 
@@ -92,6 +119,16 @@ class Server {
       }
       break;
 
+      case "disc": {
+        _onOpponentDisconnect();
+      }
+      break;
+
+      case "join": {
+        _onOpponentJoin(message);
+      }
+      break;
+
       default: {
       }
       break;
@@ -113,6 +150,16 @@ class Server {
     int col = int.parse(coordinates[1]);
 
     getMoveCallback(row, col);
+  }
+
+  void _onOpponentDisconnect() {
+    opponentDisconnectCallback();
+  }
+
+  void _onOpponentJoin(String message) {
+    String color = message.substring(5);
+
+    opponentJoinCallback(color);
   }
 
   void _listenToStream() {

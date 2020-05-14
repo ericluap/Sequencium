@@ -17,22 +17,47 @@ class OnlineGame extends StatefulWidget {
 class _OnlineGameState extends State<OnlineGame> {
   Game game = Game();
 
+  String text;
+
+  String player;
+
   @override
   void initState() {
     _initializeState();
 
     widget.server.onGetMove(_getMoveCallback);
+    widget.server.onOpponentDisconnect(_opponentDisconnectCallback);
+    widget.server.onOpponentJoin(_opponentJoinCallback);
   }
 
   void _initializeState() {
     game.restart();
+    _resetText();
     setState(() {});
+  }
+
+  void _resetText() {
+    text = "Waiting for opponent...";
+  }
+
+  void _resetPlayer() {
   }
 
   @override
   void dispose() {
-    widget.server.removeGetMoveCallback(_getMoveCallback);
+    widget.server.disconnectFromServer();
     super.dispose();
+  }
+
+  void _opponentJoinCallback(String color) {
+    text = "You are " + color;
+    setState(() {});
+  }
+
+  void _opponentDisconnectCallback() {
+    _resetText();
+    _resetPlayer();
+    setState(() {});
   }
 
   void _getMoveCallback(int row, int col) {
@@ -84,7 +109,7 @@ class _OnlineGameState extends State<OnlineGame> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text("hi"),
+        Text(text),
         //_createCurrentPlayerText(context),
         grid_widget.createGridWidget(game, _onSquareTap),
         _createButtons(),

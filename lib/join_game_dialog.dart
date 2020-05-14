@@ -54,7 +54,10 @@ class _JoinGameInputState extends State<JoinGameInput> {
         ),
         RaisedButton(
           child: Text("Join"),
-          onPressed: () {widget.submitCallback(controller.text);},
+          onPressed: () {
+            Navigator.of(context).pop();
+            widget.submitCallback(controller.text);
+          },
         )
       ]
     );
