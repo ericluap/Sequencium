@@ -4,6 +4,7 @@ import 'game.dart';
 import 'grid_widget.dart' as grid_widget;
 import 'dialog.dart' as dialog;
 import 'player.dart';
+import 'join_code_dialog.dart' as join_code;
 
 class OnlineGame extends StatefulWidget {
   OnlineGame(this.server, this.stopMultiplayer);
@@ -136,11 +137,19 @@ class _OnlineGameState extends State<OnlineGame> {
       },
     );
 
+    Widget joinCode = RaisedButton(
+      child: Text("Join Code"),
+      onPressed: () {
+        join_code.showJoinCodeDialog(context, widget.server.joinCode);
+      },
+    );
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         disconnect,
+        joinCode,
       ]
     );
   }

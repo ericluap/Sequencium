@@ -90,6 +90,3 @@ void showDisconnectDialog(BuildContext context, Function disconnect) {
     }
   );
 }
-
-
-
