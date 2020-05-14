@@ -22,11 +22,16 @@ class _OnlineGameState extends State<OnlineGame> {
   Player player;
   Color playerColor;
   Color opponentColor;
-  bool hasPlayer = false;
+  bool hasOpponent = false;
 
   @override
   void initState() {
+    _resetOpponent();
     _initializeState();
+
+    if(widget.server.hasColor) {
+      _opponentJoinCallback(widget.server.color);
+    }
 
     widget.server.onGetMove(_getMoveCallback);
     widget.server.onOpponentDisconnect(_opponentDisconnectCallback);
@@ -35,17 +40,13 @@ class _OnlineGameState extends State<OnlineGame> {
 
   void _initializeState() {
     game.restart();
-    _resetText();
     setState(() {});
   }
 
-  void _resetText() {
-    hasPlayer = false;
+  void _resetOpponent() {
+    hasOpponent = false;
     playerColor = Colors.black;
     opponentColor = Colors.black;
-  }
-
-  void _resetPlayer() {
   }
 
   @override
@@ -74,21 +75,19 @@ class _OnlineGameState extends State<OnlineGame> {
   }
 
   void _opponentJoinCallback(String color) {
-    hasPlayer = true;
+    hasOpponent = true;
     _setPlayerFromColor(color);
     setState(() {});
   }
 
   void _opponentDisconnectCallback() {
-    _resetText();
-    _resetPlayer();
+    _initializeState();
+    _resetOpponent();
     setState(() {});
   }
 
   void _getMoveCallback(int row, int col) {
-    game.updateGrid(row, col);
-      
-    setState(() {});
+    _onSquareTap(row, col, fromServer: true); 
   }
 
   String _getGameOverText() {
@@ -96,7 +95,7 @@ class _OnlineGameState extends State<OnlineGame> {
   }
 
   bool _isSquareAvailable(Player currentPlayer) {
-    if(hasPlayer) {
+    if(hasOpponent) {
       return currentPlayer == player;
     }
     else {
@@ -104,10 +103,12 @@ class _OnlineGameState extends State<OnlineGame> {
     }
   }
 
-  void _onSquareTap(int row, int col) {
+  void _onSquareTap(int row, int col, {fromServer=false}) {
     game.updateGrid(row, col);
 
-    widget.server.sendMove(row, col);
+    if(!fromServer) {
+      widget.server.sendMove(row, col);
+    }
     
     setState(() {});
 
@@ -121,7 +122,7 @@ class _OnlineGameState extends State<OnlineGame> {
   }
 
   bool _isMyTurn() {
-    if(hasPlayer) {
+    if(hasOpponent) {
       return game.currentPlayer == player;
     }
     else {
@@ -154,10 +155,10 @@ class _OnlineGameState extends State<OnlineGame> {
     );
   }
 
-  Widget _createText() {
+  Widget _createCurrentPlayerText() {
     Widget text;
 
-    if(!hasPlayer) {
+    if(!hasOpponent) {
       text = Text(
         "Waiting for opponent...",
         style: TextStyle(
@@ -194,8 +195,7 @@ class _OnlineGameState extends State<OnlineGame> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        _createText(),
-        //_createCurrentPlayerText(context),
+        _createCurrentPlayerText(),
         grid_widget.createGridWidget(game, _onSquareTap, _isSquareAvailable),
         _createButtons(),
       ],

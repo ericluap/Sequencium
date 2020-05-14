@@ -14,6 +14,9 @@ class Server {
   bool hasJoinCode = false;
   String joinCode = "";
 
+  bool hasColor = false;
+  String color = "";
+
   Function joinCodeCallback = (String joinCode) {};
   Function getMoveCallback = (int row, int col) {};
   Function opponentDisconnectCallback = () {};
@@ -23,6 +26,9 @@ class Server {
     hasJoinCode = false;
     joinCode = "";
     isConnected = false;
+
+    hasColor = false;
+    color = "";
 
     joinCodeCallback = (String joinCode) {};
     getMoveCallback = (int row, int col) {};
@@ -54,6 +60,10 @@ class Server {
 
   void joinGame(code) {
     _connectToServerIfNeeded();
+    
+    hasJoinCode = true;
+    joinCode = code;
+
     channel.sink.add("join " + code);
   }
 
@@ -158,6 +168,9 @@ class Server {
 
   void _onOpponentJoin(String message) {
     String color = message.substring(5);
+
+    hasColor = true;
+    this.color = color;
 
     opponentJoinCallback(color);
   }

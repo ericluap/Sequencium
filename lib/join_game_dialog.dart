@@ -46,7 +46,6 @@ class _JoinGameInputState extends State<JoinGameInput> {
           autocorrect: false,
           enableSuggestions: false,
           autofocus: true,
-          //onSubmitted: (text) {widget.submitCallback(text);Navigator.of(context).pop();},
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             hintText: "Enter join code",
