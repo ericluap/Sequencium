@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'game.dart';
 import 'grid_widget.dart' as grid_widget;
 import 'dialog.dart' as dialog;
+import 'player.dart';
 
 class OnlineGame extends StatefulWidget {
   OnlineGame(this.server, this.stopMultiplayer);
@@ -17,9 +18,10 @@ class OnlineGame extends StatefulWidget {
 class _OnlineGameState extends State<OnlineGame> {
   Game game = Game();
 
-  String text;
-
-  String player;
+  Player player;
+  Color playerColor;
+  Color opponentColor;
+  bool hasPlayer = false;
 
   @override
   void initState() {
@@ -37,7 +39,9 @@ class _OnlineGameState extends State<OnlineGame> {
   }
 
   void _resetText() {
-    text = "Waiting for opponent...";
+    hasPlayer = false;
+    playerColor = Colors.black;
+    opponentColor = Colors.black;
   }
 
   void _resetPlayer() {
@@ -49,8 +53,28 @@ class _OnlineGameState extends State<OnlineGame> {
     super.dispose();
   }
 
+  void _setPlayerFromColor(String color) {
+    if(color == grid_widget.strColorForA.toLowerCase()) {
+      player = Player.A;
+      playerColor = grid_widget.colorForA;
+      opponentColor = grid_widget.colorForB;
+    }
+    else if(color == grid_widget.strColorForB.toLowerCase()) {
+      player = Player.B;
+      playerColor = grid_widget.colorForB;
+      opponentColor = grid_widget.colorForA;
+    }
+    else {
+      // TODO: handle this properly
+      player = Player.A;
+      playerColor = Colors.black;
+      opponentColor = Colors.black;
+    }
+  }
+
   void _opponentJoinCallback(String color) {
-    text = "You are " + color;
+    hasPlayer = true;
+    _setPlayerFromColor(color);
     setState(() {});
   }
 
@@ -62,12 +86,21 @@ class _OnlineGameState extends State<OnlineGame> {
 
   void _getMoveCallback(int row, int col) {
     game.updateGrid(row, col);
-
+      
     setState(() {});
   }
 
   String _getGameOverText() {
     return "game over";
+  }
+
+  bool _isSquareAvailable(Player currentPlayer) {
+    if(hasPlayer) {
+      return currentPlayer == player;
+    }
+    else {
+      return false;
+    }
   }
 
   void _onSquareTap(int row, int col) {
@@ -84,6 +117,15 @@ class _OnlineGameState extends State<OnlineGame> {
 
   void _disconnect() {
     widget.stopMultiplayer();
+  }
+
+  bool _isMyTurn() {
+    if(hasPlayer) {
+      return game.currentPlayer == player;
+    }
+    else {
+      return false;
+    }
   }
 
   Widget _createButtons() {
@@ -103,15 +145,49 @@ class _OnlineGameState extends State<OnlineGame> {
     );
   }
 
+  Widget _createText() {
+    Widget text;
+
+    if(!hasPlayer) {
+      text = Text(
+        "Waiting for opponent...",
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 25.0,
+        ),
+      );
+    }
+    else if(_isMyTurn()) {
+      text = Text(
+        "Your Turn",
+        style: TextStyle(
+          color: playerColor,
+          fontSize: 25.0,
+        ),
+      );
+    }
+    else {
+      text = Text(
+        "Opponent's Turn",
+        style: TextStyle(
+          color: opponentColor,
+          fontSize: 25.0,
+        ),
+      );
+    }
+
+    return text;
+  } 
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(text),
+        _createText(),
         //_createCurrentPlayerText(context),
-        grid_widget.createGridWidget(game, _onSquareTap),
+        grid_widget.createGridWidget(game, _onSquareTap, _isSquareAvailable),
         _createButtons(),
       ],
     );

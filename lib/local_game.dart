@@ -179,7 +179,7 @@ class _LocalGameState extends State<LocalGame> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         _createCurrentPlayerText(),
-        grid_widget.createGridWidget(game, _onSquareTap),
+        grid_widget.createGridWidget(game, _onSquareTap, (Player player) {return true;}),
         _createButtons(),
       ],
     );

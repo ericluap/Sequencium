@@ -10,13 +10,12 @@ Color colorForA = Colors.blue;
 String strColorForB = "Red";
 Color colorForB = Colors.red;
 
-
-Widget createGridWidget(Game game, tapCallback) {
+Widget createGridWidget(Game game, tapCallback, isSquareAvailable) {
   Widget gridWidget = GridView.count(
     crossAxisCount: game.size,
     physics: NeverScrollableScrollPhysics(),
     shrinkWrap: true,
-    children: _buildWidgetListFromGrid(game, tapCallback),
+    children: _buildWidgetListFromGrid(game, tapCallback, isSquareAvailable),
   );
 
   var constraints = (childWidget) => ConstrainedBox(
@@ -35,7 +34,7 @@ Widget createGridWidget(Game game, tapCallback) {
   return padding(constraints(gridWidget));
 }
 
-List<Widget> _buildWidgetListFromGrid(Game game, tapCallback) {
+List<Widget> _buildWidgetListFromGrid(Game game, tapCallback, isSquareAvailable) {
   List<Widget> widgetList = List(game.size*game.size);
 
   for(int row = 0; row < game.size; row++) {
@@ -44,10 +43,12 @@ List<Widget> _buildWidgetListFromGrid(Game game, tapCallback) {
 
       // If isSquareAvailable make it a FlatButton
       // otherwise make it a Text
-      if(game.isSquareAvailable(row, column)) {
+      if(game.isSquareAvailable(row, column) && isSquareAvailable(game.currentPlayer)) {
         widgetList[index] = Container(
           child: FlatButton(
-            onPressed: (){tapCallback(row, column);},
+            onPressed: () {
+              tapCallback(row, column);
+            },
             onLongPress: null,
             child: Center(
               child: Text(
