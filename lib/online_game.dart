@@ -5,6 +5,7 @@ import 'grid_widget.dart' as grid_widget;
 import 'dialog.dart' as dialog;
 import 'player.dart';
 import 'join_code_dialog.dart' as join_code;
+import 'winner.dart';
 
 class OnlineGame extends StatefulWidget {
   OnlineGame(this.server, this.stopMultiplayer);
@@ -90,8 +91,30 @@ class _OnlineGameState extends State<OnlineGame> {
     _onSquareTap(row, col, fromServer: true); 
   }
 
+  bool _amIWinner(Winner winner) {
+    if(winner == Winner.A && player == Player.A) {
+      return true;
+    }
+    else if(winner == Winner.B && player == Player.B) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   String _getGameOverText() {
-    return "game over";
+    Winner winner = game.getWinner();
+    
+    if(winner == Winner.Tie) {
+      return "It was a tie!";
+    }
+    else if(_amIWinner(winner)) {
+      return "You won!";
+    }
+    else {
+      return "You lost!";
+    }
   }
 
   bool _isSquareAvailable(Player currentPlayer) {

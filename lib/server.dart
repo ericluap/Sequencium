@@ -4,8 +4,8 @@ import 'package:web_socket_channel/status.dart' as statusCodes;
 class Server {
   WebSocketChannel channel;
 
-  //final url = 'wss://sequencium-server.herokuapp.com/';
-  final url = 'ws://127.0.0.1:8080';
+  final url = 'wss://sequencium-server.herokuapp.com/';
+  //final url = 'ws://127.0.0.1:8080';
 
   bool isConnected = false;
 
